@@ -1,4 +1,4 @@
-package com.dujo.chefsbook.model;
+package com.dujo.chefsbook.data.model;
 
 public class Pizza {
     private String id;
