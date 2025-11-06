@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.dujo.chefsbook.R;
+import com.dujo.chefsbook.data.repository.UserRepository;
 import com.dujo.chefsbook.ui.main.MainActivity;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
@@ -56,6 +57,7 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, task -> {
                     btnSubmit.setEnabled(true);
                     if (task.isSuccessful()) {
+                        UserRepository.getInstance(this).refreshFromServer();
                         startActivity(new Intent(this, MainActivity.class));
                         finish();
                     } else {

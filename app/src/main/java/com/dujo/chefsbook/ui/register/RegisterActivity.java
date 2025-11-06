@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.dujo.chefsbook.R;
+import com.dujo.chefsbook.data.repository.UserRepository;
 import com.dujo.chefsbook.ui.main.MainActivity;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
@@ -120,6 +121,7 @@ public class RegisterActivity extends AppCompatActivity {
                         return null;
                     }).addOnSuccessListener(aVoid -> {
                         // success: go to main
+                        UserRepository.getInstance(this).refreshFromServer();
                         Log.i(TAG, "Registered and claimed username: " + username);
                         startActivity(new Intent(RegisterActivity.this, MainActivity.class));
                         finish();

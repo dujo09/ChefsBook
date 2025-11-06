@@ -43,4 +43,5 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.google.firebase.firestore)
     implementation(libs.firebaseui.firebase.ui.auth)
+    implementation libs.gson
 }

@@ -16,10 +16,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.dujo.chefsbook.R;
+import com.dujo.chefsbook.data.model.User;
 import com.dujo.chefsbook.viewModel.PizzaViewModel;
+import com.dujo.chefsbook.viewModel.SharedUserViewModel;
 import com.firebase.ui.auth.AuthUI;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     private PizzaViewModel pizzaViewModel;
     private PizzaAdapter pizzaAdapter;
+    private SharedUserViewModel userViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,21 +46,21 @@ public class MainActivity extends AppCompatActivity {
         tvStatus = findViewById(R.id.tvStatus);
         btnSignOut = findViewById(R.id.btnSignOut);
 
-        updateUi();
-
         btnSignOut.setOnClickListener(v -> {
             AuthUI.getInstance()
                     .signOut(this)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "Signed out");
-                            updateUi();
+                            userViewModel.clear();
                         } else {
                             Log.e(TAG, "Sign out failed", task.getException());
                         }
                     });
         });
 
+        userViewModel = new ViewModelProvider(this).get(SharedUserViewModel.class);
+        userViewModel.getUser().observe(this, this::updateUi);
         pizzaViewModel = new ViewModelProvider(this).get(PizzaViewModel.class);
         RecyclerView rv = findViewById(R.id.rvPizzas);
         pizzaAdapter = new PizzaAdapter(p -> {
@@ -77,12 +78,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void updateUi() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    private void updateUi(User user) {
         if (user != null) {
-            tvStatus.setText("Signed in as: " + user.getEmail());
+            tvStatus.setText(user.username);
         } else {
-            tvStatus.setText("Not signed in");
+            tvStatus.setText("");
         }
     }
 }
