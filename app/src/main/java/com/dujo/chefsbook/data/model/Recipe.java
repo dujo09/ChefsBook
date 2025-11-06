@@ -1,5 +1,8 @@
 package com.dujo.chefsbook.data.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Recipe {
     private String id;
     private String name;
@@ -56,5 +59,14 @@ public class Recipe {
 
     public void setRecipeCategoryId(String recipeCategoryId) {
         this.recipeCategoryId = recipeCategoryId;
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> m = new HashMap<>();
+        m.put("name", name);
+        m.put("description", description);
+        m.put("rating", rating);
+        m.put("recipeCategoryId", recipeCategoryId);
+        return m;
     }
 }

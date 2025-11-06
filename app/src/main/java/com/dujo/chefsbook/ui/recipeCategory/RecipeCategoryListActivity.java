@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.dujo.chefsbook.R;
 import com.dujo.chefsbook.data.model.User;
+import com.dujo.chefsbook.ui.addRecipe.AddRecipeActivity;
 import com.dujo.chefsbook.ui.recipe.RecipeListActivity;
 import com.dujo.chefsbook.viewModel.RecipeCategoryViewModel;
 import com.dujo.chefsbook.viewModel.SharedUserViewModel;
@@ -30,6 +31,7 @@ public class RecipeCategoryListActivity extends AppCompatActivity {
 
     private TextView tvStatus;
     private Button btnSignOut;
+    private Button btnAddRecipe;
 
     private RecipeCategoryViewModel recipeCategoryViewModel;
     private RecipeCategoryAdapter recipeCategoryAdapter;
@@ -48,6 +50,7 @@ public class RecipeCategoryListActivity extends AppCompatActivity {
 
         tvStatus = findViewById(R.id.tvStatus);
         btnSignOut = findViewById(R.id.btnSignOut);
+        btnAddRecipe = findViewById(R.id.btnAddRecipe);
 
         btnSignOut.setOnClickListener(v -> {
             AuthUI.getInstance()
@@ -60,6 +63,11 @@ public class RecipeCategoryListActivity extends AppCompatActivity {
                             Log.e(TAG, "Sign out failed", task.getException());
                         }
                     });
+        });
+
+        btnAddRecipe.setOnClickListener(v -> {
+            Intent i = new Intent(this, AddRecipeActivity.class);
+            startActivity(i);
         });
 
         userViewModel = new ViewModelProvider(this).get(SharedUserViewModel.class);
