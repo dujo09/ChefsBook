@@ -13,6 +13,9 @@ public class Pizza {
         this.price = price;
     }
 
+    public Pizza() {
+    }
+
     public String getId() {
         return id;
     }

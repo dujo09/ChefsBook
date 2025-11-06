@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "932229685063",
+    "project_id": "chefsbook-12f09",
+    "storage_bucket": "chefsbook-12f09.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:932229685063:android:576d7b83037d2cca79f662",
+        "android_client_info": {
+          "package_name": "com.dujo.chefsbook"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIgYlMW-euQIf5FYlHiVuDwwX6QbiFUbk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
