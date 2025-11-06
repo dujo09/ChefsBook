@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.dujo.chefsbook.R;
 import com.dujo.chefsbook.data.model.User;
-import com.dujo.chefsbook.viewModel.PizzaViewModel;
+import com.dujo.chefsbook.viewModel.FoodCategoryViewModel;
 import com.dujo.chefsbook.viewModel.SharedUserViewModel;
 import com.firebase.ui.auth.AuthUI;
 
@@ -27,17 +27,16 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvStatus;
     private Button btnSignOut;
 
-    private PizzaViewModel pizzaViewModel;
-    private PizzaAdapter pizzaAdapter;
+    private FoodCategoryViewModel foodCategoryViewModel;
+    private FoodCategoryAdapter foodCategoryAdapter;
     private SharedUserViewModel userViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.rvPizzas), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.rvFoodCategories), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -61,19 +60,19 @@ public class MainActivity extends AppCompatActivity {
 
         userViewModel = new ViewModelProvider(this).get(SharedUserViewModel.class);
         userViewModel.getUser().observe(this, this::updateUi);
-        pizzaViewModel = new ViewModelProvider(this).get(PizzaViewModel.class);
-        RecyclerView rv = findViewById(R.id.rvPizzas);
-        pizzaAdapter = new PizzaAdapter(p -> {
-        });
-        rv.setLayoutManager(new LinearLayoutManager(this));
-        rv.setAdapter(pizzaAdapter);
 
-        pizzaViewModel.getPizzas().observe(this, pizzas -> {
-            Log.i("DUJO", "onCreate: pizzas " + pizzas);
-            if (pizzas != null) pizzaAdapter.submitList(pizzas);
+        foodCategoryViewModel = new ViewModelProvider(this).get(FoodCategoryViewModel.class);
+        RecyclerView recyclerView = findViewById(R.id.rvFoodCategories);
+        foodCategoryAdapter = new FoodCategoryAdapter(foodCategory -> {
+        });
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(foodCategoryAdapter);
+
+        foodCategoryViewModel.getPizzas().observe(this, pizzas -> {
+            if (pizzas != null) foodCategoryAdapter.submitList(pizzas);
         });
 
-        pizzaViewModel.getError().observe(this, s -> {
+        foodCategoryViewModel.getError().observe(this, s -> {
             if (s != null) Toast.makeText(this, s, Toast.LENGTH_LONG).show();
         });
     }

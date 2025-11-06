@@ -4,23 +4,22 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.dujo.chefsbook.data.model.Pizza;
-import com.dujo.chefsbook.data.repository.FirebaseRepository;
+import com.dujo.chefsbook.data.model.FoodCategory;
+import com.dujo.chefsbook.data.repository.FoodCategoryRepository;
 
 import java.util.List;
 
-public class PizzaViewModel extends ViewModel {
-    private final FirebaseRepository repo;
-    private final MutableLiveData<List<Pizza>> pizzas = new MutableLiveData<>();
+public class FoodCategoryViewModel extends ViewModel {
+    private final MutableLiveData<List<FoodCategory>> pizzas = new MutableLiveData<>();
     private final MutableLiveData<String> error = new MutableLiveData<>();
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
 
-    public PizzaViewModel() {
-        repo = new FirebaseRepository();
-        repo.fetchPizzas(pizzas, error);
+    public FoodCategoryViewModel() {
+        FoodCategoryRepository repo = new FoodCategoryRepository();
+        repo.getFoodCategories(pizzas, error);
     }
 
-    public LiveData<List<Pizza>> getPizzas() {
+    public LiveData<List<FoodCategory>> getPizzas() {
         return pizzas;
     }
 
