@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.dujo.chefsbook.R;
 import com.dujo.chefsbook.data.repository.UserRepository;
-import com.dujo.chefsbook.ui.main.MainActivity;
+import com.dujo.chefsbook.ui.recipeCategory.RecipeCategoryListActivity;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -58,7 +58,7 @@ public class LoginActivity extends AppCompatActivity {
                     btnSubmit.setEnabled(true);
                     if (task.isSuccessful()) {
                         UserRepository.getInstance(this).refreshFromServer();
-                        startActivity(new Intent(this, MainActivity.class));
+                        startActivity(new Intent(this, RecipeCategoryListActivity.class));
                         finish();
                     } else {
                         Log.w(TAG, "signInWithEmail:failure", task.getException());

@@ -1,5 +1,6 @@
-package com.dujo.chefsbook.ui.main;
+package com.dujo.chefsbook.ui.recipeCategory;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -17,26 +18,29 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.dujo.chefsbook.R;
 import com.dujo.chefsbook.data.model.User;
-import com.dujo.chefsbook.viewModel.FoodCategoryViewModel;
+import com.dujo.chefsbook.ui.recipe.RecipeListActivity;
+import com.dujo.chefsbook.viewModel.RecipeCategoryViewModel;
 import com.dujo.chefsbook.viewModel.SharedUserViewModel;
 import com.firebase.ui.auth.AuthUI;
 
-public class MainActivity extends AppCompatActivity {
+public class RecipeCategoryListActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+    public static final String EXTRA_CATEGORY_ID = "extra:category_id";
+    public static final String EXTRA_CATEGORY_NAME = "extra:category_name";
 
     private TextView tvStatus;
     private Button btnSignOut;
 
-    private FoodCategoryViewModel foodCategoryViewModel;
-    private FoodCategoryAdapter foodCategoryAdapter;
+    private RecipeCategoryViewModel recipeCategoryViewModel;
+    private RecipeCategoryAdapter recipeCategoryAdapter;
     private SharedUserViewModel userViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.rvFoodCategories), (v, insets) -> {
+        setContentView(R.layout.activity_recipe_category_list);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.rvRecipeCategories), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -61,18 +65,22 @@ public class MainActivity extends AppCompatActivity {
         userViewModel = new ViewModelProvider(this).get(SharedUserViewModel.class);
         userViewModel.getUser().observe(this, this::updateUi);
 
-        foodCategoryViewModel = new ViewModelProvider(this).get(FoodCategoryViewModel.class);
-        RecyclerView recyclerView = findViewById(R.id.rvFoodCategories);
-        foodCategoryAdapter = new FoodCategoryAdapter(foodCategory -> {
+        recipeCategoryViewModel = new ViewModelProvider(this).get(RecipeCategoryViewModel.class);
+        RecyclerView recyclerView = findViewById(R.id.rvRecipeCategories);
+        recipeCategoryAdapter = new RecipeCategoryAdapter(recipeCategory -> {
+            Intent i = new Intent(this, RecipeListActivity.class);
+            i.putExtra(EXTRA_CATEGORY_ID, recipeCategory.getId());
+            i.putExtra(EXTRA_CATEGORY_NAME, recipeCategory.getName());
+            startActivity(i);
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(foodCategoryAdapter);
+        recyclerView.setAdapter(recipeCategoryAdapter);
 
-        foodCategoryViewModel.getPizzas().observe(this, pizzas -> {
-            if (pizzas != null) foodCategoryAdapter.submitList(pizzas);
+        recipeCategoryViewModel.getRecipeCategories().observe(this, pizzas -> {
+            if (pizzas != null) recipeCategoryAdapter.submitList(pizzas);
         });
 
-        foodCategoryViewModel.getError().observe(this, s -> {
+        recipeCategoryViewModel.getError().observe(this, s -> {
             if (s != null) Toast.makeText(this, s, Toast.LENGTH_LONG).show();
         });
     }

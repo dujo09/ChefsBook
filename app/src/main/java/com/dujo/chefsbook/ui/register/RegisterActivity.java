@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.dujo.chefsbook.R;
 import com.dujo.chefsbook.data.repository.UserRepository;
-import com.dujo.chefsbook.ui.main.MainActivity;
+import com.dujo.chefsbook.ui.recipeCategory.RecipeCategoryListActivity;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -123,7 +123,7 @@ public class RegisterActivity extends AppCompatActivity {
                         // success: go to main
                         UserRepository.getInstance(this).refreshFromServer();
                         Log.i(TAG, "Registered and claimed username: " + username);
-                        startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                        startActivity(new Intent(RegisterActivity.this, RecipeCategoryListActivity.class));
                         finish();
                     }).addOnFailureListener(e -> {
                         btnSubmit.setEnabled(true);

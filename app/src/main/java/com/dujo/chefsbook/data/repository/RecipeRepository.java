@@ -1,0 +1,43 @@
+package com.dujo.chefsbook.data.repository;
+
+import androidx.lifecycle.MutableLiveData;
+
+import com.dujo.chefsbook.data.model.Recipe;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class RecipeRepository {
+    public static final String RECIPE_COLLECTION = "recipes";
+    private final FirebaseAuth auth;
+    private final CollectionReference recipeCollection;
+
+    public RecipeRepository() {
+        auth = FirebaseAuth.getInstance();
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        recipeCollection = firestore.collection(RECIPE_COLLECTION);
+    }
+
+    public void getRecipes(MutableLiveData<List<Recipe>> liveList, MutableLiveData<String> error) {
+        recipeCollection.addSnapshotListener((snapshots, e) -> {
+            if (e != null) {
+                error.postValue(e.getMessage());
+                return;
+            }
+            if (snapshots == null) return;
+            List<Recipe> list = new ArrayList<>();
+            for (DocumentSnapshot doc : snapshots.getDocuments()) {
+                Recipe p = doc.toObject(Recipe.class);
+                if (p != null) {
+                    p.setId(doc.getId());
+                    list.add(p);
+                }
+            }
+            liveList.postValue(list);
+        });
+    }
+}

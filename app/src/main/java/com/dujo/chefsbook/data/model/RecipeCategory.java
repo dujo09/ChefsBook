@@ -1,15 +1,15 @@
 package com.dujo.chefsbook.data.model;
 
-public class FoodCategory {
+public class RecipeCategory {
     private String id;
     private String name;
 
-    public FoodCategory(String id, String name) {
+    public RecipeCategory(String id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public FoodCategory() {
+    public RecipeCategory() {
     }
 
     public String getId() {
