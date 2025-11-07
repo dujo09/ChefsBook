@@ -41,6 +41,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
     private String recipeId;
     private String ownerUid;
     private String currentUid;
+    private Button btnDelete;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,6 +56,8 @@ public class RecipeDetailActivity extends AppCompatActivity {
         btnUpdate = findViewById(R.id.btnUpdate);
         progress = findViewById(R.id.progress);
         tvStatus = findViewById(R.id.tvStatus);
+        btnDelete = findViewById(R.id.btnDelete);
+        btnDelete.setOnClickListener(v -> onDeleteClicked());
 
         db = FirebaseFirestore.getInstance();
         currentUid = FirebaseAuth.getInstance().getUid();
@@ -113,6 +116,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
             etDescription.setEnabled(isOwner);
             btnUpdate.setEnabled(isOwner);
             tvOwnerBadge.setVisibility(isOwner ? View.VISIBLE : View.GONE);
+            btnDelete.setVisibility(isOwner ? View.VISIBLE : View.GONE);
 
             // rating: if owner -> disable rating UI; else enable rating UI and load user's rating
             ratingBar.setIsIndicator(isOwner); // if owner, indicator (not editable)
@@ -239,5 +243,62 @@ public class RecipeDetailActivity extends AppCompatActivity {
                 tvAvgRating.setText(String.format("%.2f (%d)", avg, count));
             }
         });
+    }
+    private void onDeleteClicked() {
+        // confirm deletion
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Delete recipe")
+                .setMessage("Are you sure you want to delete this recipe? This action cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) -> performDelete())
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void performDelete() {
+        if (recipeId == null) return;
+        setUiLoading(true); // reuse existing method to show progress
+        // First: optional delete ratings subcollection documents via batch
+        CollectionReference ratingsRef = db.collection("recipes").document(recipeId).collection("ratings");
+
+        // Fetch rating docs then delete them in a WriteBatch
+        ratingsRef.get()
+                .addOnSuccessListener(querySnapshot -> {
+                    // create batch to delete rating docs
+                    com.google.firebase.firestore.WriteBatch batch = db.batch();
+                    for (DocumentSnapshot ds : querySnapshot.getDocuments()) {
+                        batch.delete(ds.getReference());
+                    }
+                    // commit batch (if no ratings this batch is a no-op)
+                    batch.commit()
+                            .addOnSuccessListener(aVoid -> {
+                                // now delete parent recipe doc
+                                deleteRecipeDocument();
+                            })
+                            .addOnFailureListener(e -> {
+                                setUiLoading(false);
+                                Toast.makeText(RecipeDetailActivity.this, "Failed to clear ratings: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    // If failed to fetch ratings, still attempt to delete recipe (optional)
+                    // Here we choose to abort and inform user
+                    setUiLoading(false);
+                    Toast.makeText(RecipeDetailActivity.this, "Failed to delete ratings: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
+    }
+
+    private void deleteRecipeDocument() {
+        db.collection("recipes").document(recipeId)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    setUiLoading(false);
+                    Toast.makeText(RecipeDetailActivity.this, "Recipe deleted", Toast.LENGTH_SHORT).show();
+                    // close activity and return to previous screen
+                    finish();
+                })
+                .addOnFailureListener(e -> {
+                    setUiLoading(false);
+                    Toast.makeText(RecipeDetailActivity.this, "Delete failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
     }
 }

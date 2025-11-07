@@ -151,6 +151,11 @@ public class AddRecipeActivity extends AppCompatActivity {
             return null;
         }
 
+        if (TextUtils.isEmpty(description)) {
+            etName.setError("Description required");
+            return null;
+        }
+
         String selectedCategoryId = null;
         int pos = spinnerCategory.getSelectedItemPosition();
         if (pos >= 0 && pos < categories.size()) {
