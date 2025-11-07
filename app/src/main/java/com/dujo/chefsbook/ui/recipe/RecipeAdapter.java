@@ -20,17 +20,6 @@ import com.dujo.chefsbook.data.model.Recipe;
 
 public class RecipeAdapter extends ListAdapter<Recipe, RecipeAdapter.RecipeVH> {
 
-    public interface OnItemClick {
-        void onClick(Recipe recipe);
-    }
-
-    private final OnItemClick listener;
-
-    public RecipeAdapter(OnItemClick listener) {
-        super(DIFF_CALLBACK);
-        this.listener = listener;
-    }
-
     private static final DiffUtil.ItemCallback<Recipe> DIFF_CALLBACK = new DiffUtil.ItemCallback<Recipe>() {
         @Override
         public boolean areItemsTheSame(@NonNull Recipe oldItem, @NonNull Recipe newItem) {
@@ -45,6 +34,12 @@ public class RecipeAdapter extends ListAdapter<Recipe, RecipeAdapter.RecipeVH> {
                     oldItem.getRecipeCategoryId().equals(newItem.getRecipeCategoryId());
         }
     };
+    private final OnItemClick listener;
+
+    public RecipeAdapter(OnItemClick listener) {
+        super(DIFF_CALLBACK);
+        this.listener = listener;
+    }
 
     @NonNull
     @Override
@@ -57,6 +52,10 @@ public class RecipeAdapter extends ListAdapter<Recipe, RecipeAdapter.RecipeVH> {
     public void onBindViewHolder(@NonNull RecipeVH holder, int position) {
         Recipe recipe = getItem(position);
         holder.bind(recipe);
+    }
+
+    public interface OnItemClick {
+        void onClick(Recipe recipe);
     }
 
     public class RecipeVH extends RecyclerView.ViewHolder {

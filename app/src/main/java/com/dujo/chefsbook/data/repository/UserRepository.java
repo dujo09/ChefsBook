@@ -16,14 +16,11 @@ public class UserRepository {
     private static final String TAG = "UserRepository";
     private static final String PREFS = "user_prefs";
     private static final String KEY_USER = "cached_user";
-
+    private static UserRepository instance;
     private final SharedPreferences prefs;
     private final FirebaseFirestore firestore;
     private final MutableLiveData<User> userLive = new MutableLiveData<>();
     private final Gson gson = new Gson();
-
-    // singleton
-    private static UserRepository instance;
 
     private UserRepository(Context context) {
         prefs = context.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
@@ -60,7 +57,6 @@ public class UserRepository {
                     if (doc.exists()) {
                         User u = doc.toObject(User.class);
                         if (u != null) {
-                            // ensure uid/email
                             u.uid = uid;
                             if (u.email == null)
                                 u.email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
@@ -68,7 +64,6 @@ public class UserRepository {
                             saveToPrefs(u);
                         }
                     } else {
-                        // no profile on server
                         userLive.postValue(null);
                         prefs.edit().remove(KEY_USER).apply();
                     }

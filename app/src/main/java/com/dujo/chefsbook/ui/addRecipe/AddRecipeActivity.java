@@ -3,7 +3,6 @@ package com.dujo.chefsbook.ui.addRecipe;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.dujo.chefsbook.data.repository.RecipeCategoryRepository.RECIPE_CATEGORY_COLLECTION;
-import static com.dujo.chefsbook.data.repository.RecipeRepository.RECIPE_COLLECTION;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -29,7 +28,6 @@ import com.dujo.chefsbook.data.model.RecipeCategory;
 import com.dujo.chefsbook.ui.recipe.RecipeListActivity;
 import com.dujo.chefsbook.ui.recipeCategory.RecipeCategoryListActivity;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -54,7 +52,7 @@ public class AddRecipeActivity extends AppCompatActivity {
     private com.google.android.material.textfield.TextInputEditText etImageUrl;
     private ImageView ivPreview;
 
-    private String initialCategoryId; // optional initial category passed in
+    private String initialCategoryId;
     private List<RecipeCategory> categories = new ArrayList<>();
     private ArrayAdapter<String> spinnerAdapter;
 
@@ -128,12 +126,10 @@ public class AddRecipeActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     progress.setVisibility(GONE);
-                    // fallback: show empty spinner entry
                     spinnerAdapter.clear();
                     spinnerAdapter.add("(no category)");
                     spinnerAdapter.notifyDataSetChanged();
                     if (initialCategoryId != null) {
-                        // show initial id as text if present
                         spinnerAdapter.clear();
                         spinnerAdapter.add(initialCategoryId);
                         spinnerAdapter.notifyDataSetChanged();
@@ -183,27 +179,21 @@ public class AddRecipeActivity extends AppCompatActivity {
             return null;
         }
 
-        // require image URL
         if (TextUtils.isEmpty(imageUrl) || !Patterns.WEB_URL.matcher(imageUrl).matches()) {
             etImageUrl.setError("Please enter a valid image URL (http/https)");
             etImageUrl.requestFocus();
             return null;
         }
 
-        // optional: quick content-type check by URL ending (jpg/png) - not mandatory
-        if (!(imageUrl.endsWith(".jpg") || imageUrl.endsWith(".jpeg") || imageUrl.endsWith(".png") || imageUrl.contains("img") )) {
-            // just a soft warning; you can enforce stricter rules if you want
-        }
+//        if (!(imageUrl.endsWith(".jpg") || imageUrl.endsWith(".jpeg") || imageUrl.endsWith(".png") || imageUrl.contains("img"))) {
+//        }
 
-        // preview the image (immediate feedback)
         showPreviewFromUrl(imageUrl);
 
-        // determine selected category id
         String selectedCategoryId = null;
         int pos = spinnerCategory.getSelectedItemPosition();
         if (pos >= 0 && pos < categories.size()) selectedCategoryId = categories.get(pos).getId();
 
-        // build recipe map and save to Firestore
         setUiEnabled(false);
         progress.setVisibility(View.VISIBLE);
 

@@ -113,14 +113,13 @@ public class RegisterActivity extends AppCompatActivity {
 
                         Map<String, Object> profile = new HashMap<>();
                         profile.put("username", username);
-                        profile.put("role", "user"); // default role
+                        profile.put("role", "user");
                         profile.put("email", email);
                         profile.put("createdAt", com.google.firebase.firestore.FieldValue.serverTimestamp());
                         transaction.set(userRef, profile, SetOptions.merge());
 
                         return null;
                     }).addOnSuccessListener(aVoid -> {
-                        // success: go to main
                         UserRepository.getInstance(this).refreshFromServer();
                         Log.i(TAG, "Registered and claimed username: " + username);
                         startActivity(new Intent(RegisterActivity.this, RecipeCategoryListActivity.class));
@@ -129,14 +128,12 @@ public class RegisterActivity extends AppCompatActivity {
                         btnSubmit.setEnabled(true);
                         Log.w(TAG, "Transaction failed", e);
 
-                        // username collision -> notify user and delete the new auth user so they can re-register
                         if (e instanceof FirebaseFirestoreException
                                 && ((FirebaseFirestoreException) e).getCode() == FirebaseFirestoreException.Code.ABORTED) {
 
                             tvError.setText("Username already taken, choose another.");
                             tvError.setVisibility(View.VISIBLE);
 
-                            // delete auth user (optional) to avoid orphan account
                             FirebaseUser toDelete = FirebaseAuth.getInstance().getCurrentUser();
                             if (toDelete != null) {
                                 toDelete.delete().addOnCompleteListener(delTask -> {

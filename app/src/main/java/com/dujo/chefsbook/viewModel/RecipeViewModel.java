@@ -15,11 +15,6 @@ public class RecipeViewModel extends ViewModel {
     private final MutableLiveData<List<Recipe>> recipes = new MutableLiveData<>();
     private final MutableLiveData<String> error = new MutableLiveData<>();
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
-
-    public MutableLiveData<String> getSelectedCategoryId() {
-        return selectedCategoryId;
-    }
-
     private final MutableLiveData<String> selectedCategoryId = new MutableLiveData<>();
     private final MediatorLiveData<List<Recipe>> filteredRecipes = new MediatorLiveData<>();
 
@@ -29,6 +24,10 @@ public class RecipeViewModel extends ViewModel {
 
         filteredRecipes.addSource(recipes, list -> recompute(list, selectedCategoryId.getValue()));
         filteredRecipes.addSource(selectedCategoryId, id -> recompute(recipes.getValue(), id));
+    }
+
+    public MutableLiveData<String> getSelectedCategoryId() {
+        return selectedCategoryId;
     }
 
     private void recompute(List<Recipe> list, String categoryId) {

@@ -64,29 +64,24 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
         recipeId = getIntent().getStringExtra(EXTRA_RECIPE_ID);
         if (TextUtils.isEmpty(recipeId)) {
-            finish(); // nothing to show
+            finish();
             return;
         }
 
-        // load recipe and ratings
         loadRecipe();
-        observeRatings(); // will compute average
+        observeRatings();
 
-        // update button
         btnUpdate.setOnClickListener(v -> onUpdateClicked());
 
-        // rating changed by user -> save rating if allowed
         ratingBar.setOnRatingBarChangeListener((rb, rating, fromUser) -> {
             if (!fromUser) return;
             if (currentUid == null) {
                 Toast.makeText(this, "Sign in to rate", Toast.LENGTH_SHORT).show();
                 return;
             }
-            // allow rating only if not owner
             if (ownerUid != null && ownerUid.equals(currentUid)) {
-                // owner should not rate here; show message and reset UI
                 Toast.makeText(this, "Owners cannot rate their own recipes here", Toast.LENGTH_SHORT).show();
-                loadUserRatingToUI(); // reload user rating (to previous)
+                loadUserRatingToUI();
                 return;
             }
             submitRating(rating);
@@ -106,11 +101,9 @@ public class RecipeDetailActivity extends AppCompatActivity {
             Recipe recipe = Recipe.fromMap(doc.getId(), doc.getData());
             ownerUid = doc.contains("ownerUid") ? doc.getString("ownerUid") : null;
 
-            // populate UI
             etName.setText(recipe.getName());
             etDescription.setText(recipe.getDescription());
 
-            // if owner -> editable fields, show badge
             boolean isOwner = currentUid != null && currentUid.equals(ownerUid);
             etName.setEnabled(isOwner);
             etDescription.setEnabled(isOwner);
@@ -118,8 +111,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
             tvOwnerBadge.setVisibility(isOwner ? View.VISIBLE : View.GONE);
             btnDelete.setVisibility(isOwner ? View.VISIBLE : View.GONE);
 
-            // rating: if owner -> disable rating UI; else enable rating UI and load user's rating
-            ratingBar.setIsIndicator(isOwner); // if owner, indicator (not editable)
+            ratingBar.setIsIndicator(isOwner);
             if (!isOwner) {
                 loadUserRatingToUI();
             }
@@ -135,7 +127,6 @@ public class RecipeDetailActivity extends AppCompatActivity {
         btnUpdate.setEnabled(!loading);
     }
 
-    // update recipe fields (owner only)
     private void onUpdateClicked() {
         String newName = etName.getText() != null ? etName.getText().toString().trim() : "";
         String newDesc = etDescription.getText() != null ? etDescription.getText().toString().trim() : "";
@@ -163,11 +154,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
                 });
     }
 
-    // --------------------------------------
-    // Ratings handling: store per-user rating at recipes/{id}/ratings/{uid}
-    // --------------------------------------
     private void submitRating(float rating) {
-        // write user rating doc
         DocumentReference rRef = db.collection("recipes").document(recipeId)
                 .collection("ratings").document(currentUid);
 
@@ -179,15 +166,13 @@ public class RecipeDetailActivity extends AppCompatActivity {
         rRef.set(data)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(RecipeDetailActivity.this, "Thanks for rating", Toast.LENGTH_SHORT).show();
-                    // after write, average will update due to observeRatings listener
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(RecipeDetailActivity.this, "Rating failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                    loadUserRatingToUI(); // revert to previous
+                    loadUserRatingToUI();
                 });
     }
 
-    // load the current user's rating to the UI (non-blocking)
     private void loadUserRatingToUI() {
         if (currentUid == null) return;
         db.collection("recipes").document(recipeId)
@@ -205,14 +190,12 @@ public class RecipeDetailActivity extends AppCompatActivity {
                 });
     }
 
-    // observe all ratings and compute average (real-time)
     private void observeRatings() {
         CollectionReference ratingsRef = db.collection("recipes").document(recipeId).collection("ratings");
         ratingsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
-                    // ignore or show
                     return;
                 }
                 if (value == null) return;
@@ -244,8 +227,8 @@ public class RecipeDetailActivity extends AppCompatActivity {
             }
         });
     }
+
     private void onDeleteClicked() {
-        // confirm deletion
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Delete recipe")
                 .setMessage("Are you sure you want to delete this recipe? This action cannot be undone.")
@@ -256,22 +239,17 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
     private void performDelete() {
         if (recipeId == null) return;
-        setUiLoading(true); // reuse existing method to show progress
-        // First: optional delete ratings subcollection documents via batch
+        setUiLoading(true);
         CollectionReference ratingsRef = db.collection("recipes").document(recipeId).collection("ratings");
 
-        // Fetch rating docs then delete them in a WriteBatch
         ratingsRef.get()
                 .addOnSuccessListener(querySnapshot -> {
-                    // create batch to delete rating docs
                     com.google.firebase.firestore.WriteBatch batch = db.batch();
                     for (DocumentSnapshot ds : querySnapshot.getDocuments()) {
                         batch.delete(ds.getReference());
                     }
-                    // commit batch (if no ratings this batch is a no-op)
                     batch.commit()
                             .addOnSuccessListener(aVoid -> {
-                                // now delete parent recipe doc
                                 deleteRecipeDocument();
                             })
                             .addOnFailureListener(e -> {
@@ -280,8 +258,6 @@ public class RecipeDetailActivity extends AppCompatActivity {
                             });
                 })
                 .addOnFailureListener(e -> {
-                    // If failed to fetch ratings, still attempt to delete recipe (optional)
-                    // Here we choose to abort and inform user
                     setUiLoading(false);
                     Toast.makeText(RecipeDetailActivity.this, "Failed to delete ratings: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
@@ -293,7 +269,6 @@ public class RecipeDetailActivity extends AppCompatActivity {
                 .addOnSuccessListener(aVoid -> {
                     setUiLoading(false);
                     Toast.makeText(RecipeDetailActivity.this, "Recipe deleted", Toast.LENGTH_SHORT).show();
-                    // close activity and return to previous screen
                     finish();
                 })
                 .addOnFailureListener(e -> {

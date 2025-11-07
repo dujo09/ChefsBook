@@ -33,9 +33,9 @@ import java.util.List;
 
 public class RecipeListActivity extends AppCompatActivity {
     private static final String TAG = "FoodListActivity";
+    private final List<Recipe> recipes = new ArrayList<>();
     private RecyclerView rv;
     private TextView tvTitle;
-    private final List<Recipe> recipes = new ArrayList<>();
     private RecipeAdapter recipeAdapter;
     private RecipeViewModel recipeViewModel;
 

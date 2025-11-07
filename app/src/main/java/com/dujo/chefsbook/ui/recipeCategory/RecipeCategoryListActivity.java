@@ -28,10 +28,9 @@ import com.dujo.chefsbook.viewModel.SharedUserViewModel;
 import com.firebase.ui.auth.AuthUI;
 
 public class RecipeCategoryListActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
     public static final String EXTRA_CATEGORY_ID = "extra:category_id";
     public static final String EXTRA_CATEGORY_NAME = "extra:category_name";
-
+    private static final String TAG = "MainActivity";
     private TextView tvStatus;
     private Button btnLogin;
     private Button btnAddRecipe;

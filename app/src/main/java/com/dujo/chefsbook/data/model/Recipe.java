@@ -23,6 +23,18 @@ public class Recipe {
     public Recipe() {
     }
 
+    public static Recipe fromMap(String id, Map<String, Object> map) {
+        if (map == null) return null;
+        String name = (String) map.get("name");
+        String description = (String) map.get("description");
+        double ratingD = 0.0;
+        Object r = map.get("rating");
+        if (r instanceof Number) ratingD = ((Number) r).doubleValue();
+        String imageUrl = (String) map.get("imageUrl");
+        String category = (String) map.get("recipeCategoryId");
+        return new Recipe(id, name, description, (float) ratingD, imageUrl, category);
+    }
+
     public String getImageUrl() {
         return imageUrl;
     }
@@ -30,6 +42,7 @@ public class Recipe {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
+
     public String getId() {
         return id;
     }
@@ -78,17 +91,5 @@ public class Recipe {
         m.put("imageUrl", imageUrl);
         m.put("recipeCategoryId", recipeCategoryId);
         return m;
-    }
-
-    public static Recipe fromMap(String id, Map<String, Object> map) {
-        if (map == null) return null;
-        String name = (String) map.get("name");
-        String description = (String) map.get("description");
-        double ratingD = 0.0;
-        Object r = map.get("rating");
-        if (r instanceof Number) ratingD = ((Number) r).doubleValue();
-        String imageUrl = (String) map.get("imageUrl");
-        String category = (String) map.get("recipeCategoryId");
-        return new Recipe(id, name, description, (float) ratingD, imageUrl, category);
     }
 }
