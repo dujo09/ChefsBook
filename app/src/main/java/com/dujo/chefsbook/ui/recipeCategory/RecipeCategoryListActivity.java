@@ -2,7 +2,6 @@ package com.dujo.chefsbook.ui.recipeCategory;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,10 +18,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.dujo.chefsbook.R;
 import com.dujo.chefsbook.data.model.User;
 import com.dujo.chefsbook.ui.addRecipe.AddRecipeActivity;
+import com.dujo.chefsbook.ui.login.LoginActivity;
 import com.dujo.chefsbook.ui.recipe.RecipeListActivity;
 import com.dujo.chefsbook.viewModel.RecipeCategoryViewModel;
 import com.dujo.chefsbook.viewModel.SharedUserViewModel;
-import com.firebase.ui.auth.AuthUI;
 
 public class RecipeCategoryListActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -53,16 +52,18 @@ public class RecipeCategoryListActivity extends AppCompatActivity {
         btnAddRecipe = findViewById(R.id.btnAddRecipe);
 
         btnSignOut.setOnClickListener(v -> {
-            AuthUI.getInstance()
-                    .signOut(this)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "Signed out");
-                            userViewModel.clear();
-                        } else {
-                            Log.e(TAG, "Sign out failed", task.getException());
-                        }
-                    });
+            Intent i = new Intent(this, LoginActivity.class);
+            startActivity(i);
+//            AuthUI.getInstance()
+//                    .signOut(this)
+//                    .addOnCompleteListener(task -> {
+//                        if (task.isSuccessful()) {
+//                            Log.d(TAG, "Signed out");
+//                            userViewModel.clear();
+//                        } else {
+//                            Log.e(TAG, "Sign out failed", task.getException());
+//                        }
+//                    });
         });
 
         btnAddRecipe.setOnClickListener(v -> {
