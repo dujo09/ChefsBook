@@ -3,6 +3,7 @@ package com.dujo.chefsbook.ui.recipeCategory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,10 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 import com.dujo.chefsbook.R;
 import com.dujo.chefsbook.data.model.RecipeCategory;
 
@@ -53,10 +58,13 @@ public class RecipeCategoryAdapter extends ListAdapter<RecipeCategory, RecipeCat
 
     public class RecipeCategoryVH extends RecyclerView.ViewHolder {
         TextView tvName;
+        ImageView ivRecipeCategoryImage;
 
         RecipeCategoryVH(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvName);
+            ivRecipeCategoryImage = itemView.findViewById(R.id.ivCategoryImage);
+
             itemView.setOnClickListener(v -> {
                 // TODO replace
                 int pos = getAdapterPosition();
@@ -68,6 +76,15 @@ public class RecipeCategoryAdapter extends ListAdapter<RecipeCategory, RecipeCat
 
         void bind(RecipeCategory recipeCategory) {
             tvName.setText(recipeCategory.getName());
+
+            int radiusPx = (int) (itemView.getResources().getDisplayMetrics().density * 12); // 12dp
+            RequestOptions options = new RequestOptions()
+                    .transform(new CenterCrop(), new RoundedCorners(radiusPx));
+
+            Glide.with(ivRecipeCategoryImage.getContext())
+                    .load(recipeCategory.getImageUrl())
+                    .apply(options)
+                    .into(ivRecipeCategoryImage);
         }
     }
 }

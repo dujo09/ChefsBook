@@ -59,6 +59,30 @@
             android:layout_gravity="center"
             android:layout_marginTop="12dp"/>
 
+        <!-- Image URL label + input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Image URL (from internet)"
+            android:layout_marginTop="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etImageUrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textUri"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageView
+            android:id="@+id/ivPreview"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Image preview"
+            android:visibility="gone"
+            android:layout_marginTop="8dp"
+            android:background="@android:color/darker_gray"/>
+
         <Button
             android:id="@+id/btnSave"
             android:layout_width="match_parent"

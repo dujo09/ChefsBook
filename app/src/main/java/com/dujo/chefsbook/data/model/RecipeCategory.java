@@ -3,10 +3,12 @@ package com.dujo.chefsbook.data.model;
 public class RecipeCategory {
     private String id;
     private String name;
+    private String imageUrl;
 
-    public RecipeCategory(String id, String name) {
+    public RecipeCategory(String id, String name, String imageUrl) {
         this.id = id;
         this.name = name;
+        this.imageUrl = imageUrl;
     }
 
     public RecipeCategory() {
@@ -26,5 +28,12 @@ public class RecipeCategory {
 
     public void setName(String name) {
         this.name = name;
+    }
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

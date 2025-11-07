@@ -3,6 +3,7 @@ package com.dujo.chefsbook.ui.recipe;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,10 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 import com.dujo.chefsbook.R;
 import com.dujo.chefsbook.data.model.Recipe;
 
@@ -56,12 +61,15 @@ public class RecipeAdapter extends ListAdapter<Recipe, RecipeAdapter.RecipeVH> {
 
     public class RecipeVH extends RecyclerView.ViewHolder {
         TextView tvRecipeName, tvRecipeDesc, tvRecipeRating;
+        ImageView ivRecipeImage;
 
         RecipeVH(@NonNull View itemView) {
             super(itemView);
             tvRecipeName = itemView.findViewById(R.id.tvRecipeName);
             tvRecipeDesc = itemView.findViewById(R.id.tvRecipeDesc);
             tvRecipeRating = itemView.findViewById(R.id.tvRecipeRating);
+            ivRecipeImage = itemView.findViewById(R.id.ivRecipeImage);
+
             itemView.setOnClickListener(v -> {
                 // TODO replace
                 int pos = getAdapterPosition();
@@ -75,6 +83,17 @@ public class RecipeAdapter extends ListAdapter<Recipe, RecipeAdapter.RecipeVH> {
             tvRecipeName.setText(recipe.getName());
             tvRecipeDesc.setText(recipe.getDescription());
             tvRecipeRating.setText(String.valueOf(recipe.getRating()));
+
+            int radiusPx = (int) (itemView.getResources().getDisplayMetrics().density * 12);
+            RequestOptions requestOptions = new RequestOptions()
+                    .transform(new CenterCrop(), new RoundedCorners(radiusPx))
+                    .placeholder(R.drawable.placeholder_recipe)
+                    .error(R.drawable.placeholder_recipe);
+
+            Glide.with(ivRecipeImage.getContext())
+                    .load(recipe.getImageUrl())
+                    .apply(requestOptions)
+                    .into(ivRecipeImage);
         }
     }
 }
