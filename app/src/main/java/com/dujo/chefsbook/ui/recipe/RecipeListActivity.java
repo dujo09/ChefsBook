@@ -23,6 +23,7 @@ import com.dujo.chefsbook.ui.login.LoginActivity;
 import com.dujo.chefsbook.ui.recipeCategory.RecipeCategoryListActivity;
 import com.dujo.chefsbook.ui.recipeDetail.RecipeDetailActivity;
 import com.dujo.chefsbook.ui.register.RegisterActivity;
+import com.dujo.chefsbook.utils.Constants;
 import com.dujo.chefsbook.viewModel.RecipeViewModel;
 import com.dujo.chefsbook.viewModel.SharedUserViewModel;
 import com.firebase.ui.auth.AuthUI;
@@ -107,8 +108,8 @@ public class RecipeListActivity extends AppCompatActivity {
         userViewModel = new ViewModelProvider(this).get(SharedUserViewModel.class);
         userViewModel.getUser().observe(this, this::updateUi);
 
-        categoryId = getIntent().getStringExtra(RecipeCategoryListActivity.EXTRA_CATEGORY_ID);
-        String categoryName = getIntent().getStringExtra(RecipeCategoryListActivity.EXTRA_CATEGORY_NAME);
+        categoryId = getIntent().getStringExtra(Constants.EXTRA_CATEGORY_ID);
+        String categoryName = getIntent().getStringExtra(Constants.EXTRA_CATEGORY_NAME);
         if (categoryName != null) tvTitle.setText(categoryName);
 
         recipeViewModel = new ViewModelProvider(this).get(RecipeViewModel.class);

@@ -27,6 +27,7 @@ import com.dujo.chefsbook.data.model.Recipe;
 import com.dujo.chefsbook.data.model.RecipeCategory;
 import com.dujo.chefsbook.ui.recipe.RecipeListActivity;
 import com.dujo.chefsbook.ui.recipeCategory.RecipeCategoryListActivity;
+import com.dujo.chefsbook.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -93,7 +94,7 @@ public class AddRecipeActivity extends AppCompatActivity {
             Recipe recipe = saveRecipe();
             if (recipe == null) return;
             Intent i = new Intent(this, RecipeListActivity.class);
-            i.putExtra(RecipeCategoryListActivity.EXTRA_CATEGORY_ID, recipe.getRecipeCategoryId());
+            i.putExtra(Constants.EXTRA_CATEGORY_ID, recipe.getRecipeCategoryId());
             startActivity(i);
         });
         btnCancel.setOnClickListener(v -> {

@@ -22,24 +22,20 @@ import com.dujo.chefsbook.data.model.User;
 import com.dujo.chefsbook.ui.addRecipe.AddRecipeActivity;
 import com.dujo.chefsbook.ui.login.LoginActivity;
 import com.dujo.chefsbook.ui.recipe.RecipeListActivity;
-import com.dujo.chefsbook.ui.register.RegisterActivity;
+import com.dujo.chefsbook.utils.Constants;
 import com.dujo.chefsbook.viewModel.RecipeCategoryViewModel;
 import com.dujo.chefsbook.viewModel.SharedUserViewModel;
 import com.firebase.ui.auth.AuthUI;
 
 public class RecipeCategoryListActivity extends AppCompatActivity {
-    public static final String EXTRA_CATEGORY_ID = "extra:category_id";
-    public static final String EXTRA_CATEGORY_NAME = "extra:category_name";
-    private static final String TAG = "MainActivity";
-    private TextView tvStatus;
-    private Button btnLogin;
-    private Button btnAddRecipe;
-    private Button btnRegister;
-    private Button btnLogout;
-
+    private static final String TAG = "RecipeCategoryListActivity";
     private RecipeCategoryViewModel recipeCategoryViewModel;
     private RecipeCategoryAdapter recipeCategoryAdapter;
     private SharedUserViewModel userViewModel;
+    private TextView tvStatus;
+    private Button btnLogin;
+    private Button btnAddRecipe;
+    private Button btnLogout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,14 +50,8 @@ public class RecipeCategoryListActivity extends AppCompatActivity {
 
         tvStatus = findViewById(R.id.tvStatus);
         btnLogin = findViewById(R.id.btnLogin);
-        btnRegister = findViewById(R.id.btnRegister);
         btnAddRecipe = findViewById(R.id.btnAddRecipe);
         btnLogout = findViewById(R.id.btnLogout);
-
-        btnRegister.setOnClickListener(v -> {
-            Intent i = new Intent(this, RegisterActivity.class);
-            startActivity(i);
-        });
 
         btnLogout.setOnClickListener(v -> {
             AuthUI.getInstance()
@@ -87,33 +77,31 @@ public class RecipeCategoryListActivity extends AppCompatActivity {
         });
 
         userViewModel = new ViewModelProvider(this).get(SharedUserViewModel.class);
-        userViewModel.getUser().observe(this, this::updateUi);
+        userViewModel.getUser().observe(this, this::updateUserSessionUI);
 
-        recipeCategoryViewModel = new ViewModelProvider(this).get(RecipeCategoryViewModel.class);
-        RecyclerView recyclerView = findViewById(R.id.rvRecipeCategories);
         recipeCategoryAdapter = new RecipeCategoryAdapter(recipeCategory -> {
             Intent i = new Intent(this, RecipeListActivity.class);
-            i.putExtra(EXTRA_CATEGORY_ID, recipeCategory.getId());
-            i.putExtra(EXTRA_CATEGORY_NAME, recipeCategory.getName());
+            i.putExtra(Constants.EXTRA_CATEGORY_ID, recipeCategory.getId());
+            i.putExtra(Constants.EXTRA_CATEGORY_NAME, recipeCategory.getName());
             startActivity(i);
         });
+
+        RecyclerView recyclerView = findViewById(R.id.rvRecipeCategories);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(recipeCategoryAdapter);
 
+        recipeCategoryViewModel = new ViewModelProvider(this).get(RecipeCategoryViewModel.class);
         recipeCategoryViewModel.getRecipeCategories().observe(this, pizzas -> {
             if (pizzas != null) recipeCategoryAdapter.submitList(pizzas);
         });
-
         recipeCategoryViewModel.getError().observe(this, s -> {
             if (s != null) Toast.makeText(this, s, Toast.LENGTH_LONG).show();
         });
     }
 
-    private void updateUi(User user) {
+    private void updateUserSessionUI(User user) {
         if (user != null) {
             tvStatus.setText(user.username);
-            btnRegister.setVisibility(View.GONE);
-            btnRegister.setEnabled(false);
             btnAddRecipe.setVisibility(View.VISIBLE);
             btnAddRecipe.setEnabled(true);
             btnLogin.setVisibility(View.GONE);
@@ -122,8 +110,6 @@ public class RecipeCategoryListActivity extends AppCompatActivity {
             btnLogout.setEnabled(true);
         } else {
             tvStatus.setText("");
-            btnRegister.setVisibility(View.VISIBLE);
-            btnRegister.setEnabled(true);
             btnAddRecipe.setVisibility(View.GONE);
             btnAddRecipe.setEnabled(false);
             btnLogin.setVisibility(View.VISIBLE);
