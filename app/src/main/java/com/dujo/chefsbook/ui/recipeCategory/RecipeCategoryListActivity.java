@@ -54,6 +54,7 @@ public class RecipeCategoryListActivity extends AppCompatActivity {
         btnLogout = findViewById(R.id.btnLogout);
 
         btnLogout.setOnClickListener(v -> {
+            Toast.makeText(this, "Logging out...", Toast.LENGTH_LONG).show();
             AuthUI.getInstance()
                     .signOut(this)
                     .addOnCompleteListener(task -> {
@@ -78,6 +79,7 @@ public class RecipeCategoryListActivity extends AppCompatActivity {
 
         userViewModel = new ViewModelProvider(this).get(SharedUserViewModel.class);
         userViewModel.getUser().observe(this, this::updateUserSessionUI);
+        updateUserSessionUI(userViewModel.getUser().getValue());
 
         recipeCategoryAdapter = new RecipeCategoryAdapter(recipeCategory -> {
             Intent i = new Intent(this, RecipeListActivity.class);
@@ -97,6 +99,7 @@ public class RecipeCategoryListActivity extends AppCompatActivity {
         recipeCategoryViewModel.getError().observe(this, s -> {
             if (s != null) Toast.makeText(this, s, Toast.LENGTH_LONG).show();
         });
+
     }
 
     private void updateUserSessionUI(User user) {

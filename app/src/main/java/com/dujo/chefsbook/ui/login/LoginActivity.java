@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.dujo.chefsbook.R;
 import com.dujo.chefsbook.data.repository.UserRepository;
 import com.dujo.chefsbook.ui.recipeCategory.RecipeCategoryListActivity;
+import com.dujo.chefsbook.ui.register.RegisterActivity;
+import com.firebase.ui.auth.AuthUI;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -21,7 +23,7 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private FirebaseAuth auth;
     private TextInputEditText etEmail, etPassword;
-    private TextView tvError;
+    private TextView tvError, tvRegister;
     private Button btnSubmit;
 
     @Override
@@ -33,13 +35,20 @@ public class LoginActivity extends AppCompatActivity {
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         tvError = findViewById(R.id.tvLoginError);
-        btnSubmit = findViewById(R.id.btnSubmitLogin);
+        btnSubmit = findViewById(R.id.btnLogin);
+        tvRegister = findViewById(R.id.tvRegister);
 
         btnSubmit.setOnClickListener(v -> attemptLogin());
+        tvRegister.setOnClickListener(v -> {
+            Intent i = new Intent(this, RegisterActivity.class);
+            startActivity(i);
+        });
     }
 
     private void attemptLogin() {
         tvError.setVisibility(View.GONE);
+        btnSubmit.setEnabled(false);
+
         String email = etEmail.getText() != null ? etEmail.getText().toString().trim() : "";
         String password = etPassword.getText() != null ? etPassword.getText().toString() : "";
 
@@ -52,7 +61,6 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        btnSubmit.setEnabled(false);
         auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     btnSubmit.setEnabled(true);
@@ -61,7 +69,7 @@ public class LoginActivity extends AppCompatActivity {
                         startActivity(new Intent(this, RecipeCategoryListActivity.class));
                         finish();
                     } else {
-                        Log.w(TAG, "signInWithEmail:failure", task.getException());
+                        Log.w(TAG, "Login failed", task.getException());
                         tvError.setText(task.getException() != null ? task.getException().getMessage() : "Authentication failed");
                         tvError.setVisibility(View.VISIBLE);
                         Toast.makeText(LoginActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();

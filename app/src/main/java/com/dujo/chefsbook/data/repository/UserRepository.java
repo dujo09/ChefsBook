@@ -80,22 +80,6 @@ public class UserRepository {
         }
     }
 
-    public void updateRoleOnServer(String newRole) {
-        String uid = FirebaseAuth.getInstance().getUid();
-        if (uid == null) return;
-        firestore.collection("users").document(uid)
-                .update("role", newRole)
-                .addOnSuccessListener(a -> {
-                    User u = userLive.getValue();
-                    if (u != null) {
-                        u.role = newRole;
-                        userLive.postValue(u);
-                        saveToPrefs(u);
-                    }
-                })
-                .addOnFailureListener(e -> Log.w(TAG, "update role failed", e));
-    }
-
     public void clearCache() {
         prefs.edit().remove(KEY_USER).apply();
         userLive.postValue(null);
