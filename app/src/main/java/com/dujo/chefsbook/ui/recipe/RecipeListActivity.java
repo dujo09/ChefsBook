@@ -1,7 +1,7 @@
 package com.dujo.chefsbook.ui.recipe;
 
-import static com.dujo.chefsbook.ui.addRecipe.AddRecipeActivity.EXTRA_CATEGORY_ID;
-import static com.dujo.chefsbook.ui.addRecipe.AddRecipeActivity.EXTRA_RECIPE_ID;
+import static com.dujo.chefsbook.utils.Constants.EXTRA_CATEGORY_ID;
+import static com.dujo.chefsbook.utils.Constants.EXTRA_RECIPE_ID;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -33,22 +34,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeListActivity extends AppCompatActivity {
-    private static final String TAG = "FoodListActivity";
-    private final List<Recipe> recipes = new ArrayList<>();
-    private RecyclerView rv;
-    private TextView tvTitle;
+    private static final String TAG = "RecipeListActivity";
     private RecipeAdapter recipeAdapter;
     private RecipeViewModel recipeViewModel;
-
-    private FirebaseFirestore db;
-    private Button btnAddRecipe;
-    private String categoryId;
-
-    private Button btnLogin;
-    private Button btnRegister;
-    private Button btnLogout;
     private SharedUserViewModel userViewModel;
-
+    private Button btnAddRecipe, btnLogin, btnLogout;
+    private TextView tvStatus;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,25 +48,49 @@ public class RecipeListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_recipe_list);
 
         btnLogin = findViewById(R.id.btnLogin);
-        btnRegister = findViewById(R.id.btnRegister);
         btnAddRecipe = findViewById(R.id.btnAddRecipe);
         btnLogout = findViewById(R.id.btnLogout);
-        tvTitle = findViewById(R.id.tvRecipesTitle);
+        tvStatus = findViewById(R.id.tvStatus);
+        recyclerView = findViewById(R.id.rvRecipes);
 
-        btnRegister.setOnClickListener(v -> {
-            Intent i = new Intent(this, RegisterActivity.class);
+        String categoryId = getIntent().getStringExtra(EXTRA_CATEGORY_ID);
+        String categoryName = getIntent().getStringExtra(Constants.EXTRA_CATEGORY_NAME);
+
+        recipeAdapter = new RecipeAdapter(recipe -> {
+            Intent i = new Intent(this, RecipeDetailActivity.class);
+            i.putExtra(EXTRA_RECIPE_ID, recipe.getId());
+            startActivity(i);
+        });
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(recipeAdapter);
+
+        userViewModel = new ViewModelProvider(this).get(SharedUserViewModel.class);
+        userViewModel.getUser().observe(this, this::updateUserSessionUI);
+        updateUserSessionUI(userViewModel.getUser().getValue());
+
+        recipeViewModel = new ViewModelProvider(this).get(RecipeViewModel.class);
+        recipeViewModel.getSelectedCategoryId().setValue(categoryId);
+        recipeViewModel.getFilteredRecipes().observe(this, recipes -> {
+            if (recipes != null) recipeAdapter.submitList(recipes);
+        });
+
+        btnAddRecipe.setOnClickListener(v -> {
+            Intent i = new Intent(this, AddRecipeActivity.class);
+            i.putExtra(EXTRA_CATEGORY_ID, categoryId);
             startActivity(i);
         });
 
         btnLogout.setOnClickListener(v -> {
+            Toast.makeText(this, "Logging out...", Toast.LENGTH_LONG).show();
             AuthUI.getInstance()
                     .signOut(this)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "Signed out");
+                            Toast.makeText(this, "Logged out", Toast.LENGTH_LONG).show();
+                            Log.d(TAG, "Logged out");
                             userViewModel.clear();
                         } else {
-                            Log.e(TAG, "Sign out failed", task.getException());
+                            Log.e(TAG, "Logout failed", task.getException());
                         }
                     });
         });
@@ -83,47 +99,11 @@ public class RecipeListActivity extends AppCompatActivity {
             Intent i = new Intent(this, LoginActivity.class);
             startActivity(i);
         });
-
-        btnAddRecipe.setOnClickListener(v -> {
-            Intent i = new Intent(this, AddRecipeActivity.class);
-            startActivity(i);
-        });
-
-
-        rv = findViewById(R.id.rvRecipes);
-        rv.setLayoutManager(new LinearLayoutManager(this));
-        recipeAdapter = new RecipeAdapter(recipe -> {
-            Intent i = new Intent(this, RecipeDetailActivity.class);
-            i.putExtra(EXTRA_RECIPE_ID, recipe.getId());
-            startActivity(i);
-        });
-        rv.setAdapter(recipeAdapter);
-
-        btnAddRecipe.setOnClickListener(v -> {
-            Intent i = new Intent(this, AddRecipeActivity.class);
-            i.putExtra(EXTRA_CATEGORY_ID, categoryId);
-            startActivity(i);
-        });
-
-        userViewModel = new ViewModelProvider(this).get(SharedUserViewModel.class);
-        userViewModel.getUser().observe(this, this::updateUi);
-
-        categoryId = getIntent().getStringExtra(Constants.EXTRA_CATEGORY_ID);
-        String categoryName = getIntent().getStringExtra(Constants.EXTRA_CATEGORY_NAME);
-        if (categoryName != null) tvTitle.setText(categoryName);
-
-        recipeViewModel = new ViewModelProvider(this).get(RecipeViewModel.class);
-
-        recipeViewModel.getSelectedCategoryId().setValue(categoryId);
-        recipeViewModel.getFilteredRecipes().observe(this, recipes -> {
-            if (recipes != null) recipeAdapter.submitList(recipes);
-        });
     }
 
-    private void updateUi(User user) {
+    private void updateUserSessionUI(User user) {
         if (user != null) {
-            btnRegister.setVisibility(View.GONE);
-            btnRegister.setEnabled(false);
+            tvStatus.setText(user.username);
             btnAddRecipe.setVisibility(View.VISIBLE);
             btnAddRecipe.setEnabled(true);
             btnLogin.setVisibility(View.GONE);
@@ -131,8 +111,7 @@ public class RecipeListActivity extends AppCompatActivity {
             btnLogout.setVisibility(View.VISIBLE);
             btnLogout.setEnabled(true);
         } else {
-            btnRegister.setVisibility(View.VISIBLE);
-            btnRegister.setEnabled(true);
+            tvStatus.setText("");
             btnAddRecipe.setVisibility(View.GONE);
             btnAddRecipe.setEnabled(false);
             btnLogin.setVisibility(View.VISIBLE);

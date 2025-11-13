@@ -3,6 +3,7 @@ package com.dujo.chefsbook.ui.addRecipe;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.dujo.chefsbook.data.repository.RecipeCategoryRepository.RECIPE_CATEGORY_COLLECTION;
+import static com.dujo.chefsbook.utils.Constants.EXTRA_CATEGORY_ID;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -39,9 +40,6 @@ import java.util.List;
 import java.util.Map;
 
 public class AddRecipeActivity extends AppCompatActivity {
-
-    public static final String EXTRA_CATEGORY_ID = "extra:recipeCategoryId";
-    public static final String EXTRA_RECIPE_ID = "extra:recipeId";
 
     private TextView tvCategory;
     private com.google.android.material.textfield.TextInputEditText etName;
@@ -94,7 +92,7 @@ public class AddRecipeActivity extends AppCompatActivity {
             Recipe recipe = saveRecipe();
             if (recipe == null) return;
             Intent i = new Intent(this, RecipeListActivity.class);
-            i.putExtra(Constants.EXTRA_CATEGORY_ID, recipe.getRecipeCategoryId());
+            i.putExtra(EXTRA_CATEGORY_ID, recipe.getRecipeCategoryId());
             startActivity(i);
         });
         btnCancel.setOnClickListener(v -> {

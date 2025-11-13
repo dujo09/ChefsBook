@@ -59,10 +59,11 @@ public class RecipeCategoryListActivity extends AppCompatActivity {
                     .signOut(this)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "Signed out");
+                            Toast.makeText(this, "Logged out", Toast.LENGTH_LONG).show();
+                            Log.d(TAG, "Logged out");
                             userViewModel.clear();
                         } else {
-                            Log.e(TAG, "Sign out failed", task.getException());
+                            Log.e(TAG, "Logout failed", task.getException());
                         }
                     });
         });

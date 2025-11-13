@@ -66,7 +66,6 @@ public class LoginActivity extends AppCompatActivity {
                     btnSubmit.setEnabled(true);
                     if (task.isSuccessful()) {
                         UserRepository.getInstance(this).refreshFromServer();
-                        startActivity(new Intent(this, RecipeCategoryListActivity.class));
                         finish();
                     } else {
                         Log.w(TAG, "Login failed", task.getException());
