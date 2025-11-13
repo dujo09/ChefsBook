@@ -22,6 +22,7 @@ public class Recipe {
       String imageUrl) {
     this.id = id;
     this.name = name;
+    this.ownerId = ownerId;
     this.description = description;
     this.rating = rating;
     this.imageUrl = imageUrl;
@@ -29,6 +30,16 @@ public class Recipe {
   }
 
   public Recipe() {}
+
+  public Recipe(Recipe other) {
+    this.id = other.id;
+    this.name = other.name;
+    this.ownerId = other.ownerId;
+    this.description = other.description;
+    this.rating = other.rating;
+    this.imageUrl = other.imageUrl;
+    this.recipeCategoryId = other.recipeCategoryId;
+  }
 
   public static Recipe fromMap(String id, Map<String, Object> map) {
     if (map == null) return null;
@@ -89,6 +100,14 @@ public class Recipe {
 
   public void setRecipeCategoryId(String recipeCategoryId) {
     this.recipeCategoryId = recipeCategoryId;
+  }
+
+  public String getOwnerId() {
+    return ownerId;
+  }
+
+  public void setOwnerId(String ownerId) {
+    this.ownerId = ownerId;
   }
 
   public Map<String, Object> toMap() {

@@ -30,7 +30,7 @@ public class RecipeListActivity extends AppCompatActivity {
   private RecipeListViewModel recipeListViewModel;
   private SharedUserViewModel userViewModel;
   private Button btnAddRecipe, btnLogin, btnLogout;
-  private TextView tvStatus;
+  private TextView tvStatus, tvRecipesTitle;
   private RecyclerView recyclerView;
 
   @Override
@@ -43,9 +43,11 @@ public class RecipeListActivity extends AppCompatActivity {
     btnLogout = findViewById(R.id.btnLogout);
     tvStatus = findViewById(R.id.tvStatus);
     recyclerView = findViewById(R.id.rvRecipes);
+    tvRecipesTitle = findViewById(R.id.tvRecipesTitle);
 
     String categoryId = getIntent().getStringExtra(EXTRA_CATEGORY_ID);
     String categoryName = getIntent().getStringExtra(Constants.EXTRA_CATEGORY_NAME);
+    tvRecipesTitle.setText(categoryName);
 
     recipeListAdapter =
         new RecipeListAdapter(

@@ -23,10 +23,12 @@ import com.dujo.chefsbook.data.model.Recipe;
 import com.dujo.chefsbook.data.model.RecipeCategory;
 import com.dujo.chefsbook.ui.recipe.RecipeListActivity;
 import com.dujo.chefsbook.viewModel.AddRecipeViewModel;
+import com.dujo.chefsbook.viewModel.SharedUserViewModel;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class AddRecipeActivity extends AppCompatActivity {
   private static final String TAG = "AddRecipeActivity";
@@ -38,6 +40,7 @@ public class AddRecipeActivity extends AppCompatActivity {
   private Spinner spinnerCategory;
   private ImageView ivRecipeImage;
   private AddRecipeViewModel addRecipeViewModel;
+  private SharedUserViewModel userViewModel;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,6 +63,8 @@ public class AddRecipeActivity extends AppCompatActivity {
         android.R.layout.simple_spinner_dropdown_item);
     spinnerCategory.setAdapter(recipeCategorySpinnerAdapter);
 
+    userViewModel = new ViewModelProvider(this).get(SharedUserViewModel.class);
+
     addRecipeViewModel = new ViewModelProvider(this).get(AddRecipeViewModel.class);
     addRecipeViewModel
         .getAddedRecipe()
@@ -69,9 +74,10 @@ public class AddRecipeActivity extends AppCompatActivity {
               if (added != null) {
                 Toast.makeText(AddRecipeActivity.this, "Recipe saved", Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(this, RecipeListActivity.class);
-                Log.i(TAG, "onCreate: idddd" + added.getRecipeCategoryId());
+                Log.i(TAG, "onCreate: zlelduj" + added.getRecipeCategoryId());
                 i.putExtra(EXTRA_CATEGORY_ID, added.getRecipeCategoryId());
                 startActivity(i);
+                finish();
               }
             });
     addRecipeViewModel
