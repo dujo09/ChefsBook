@@ -32,7 +32,6 @@ public class Recipe {
   public Recipe() {}
 
   public Recipe(Recipe other) {
-    this.id = other.id;
     this.name = other.name;
     this.ownerId = other.ownerId;
     this.description = other.description;

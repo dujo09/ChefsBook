@@ -28,7 +28,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class AddRecipeActivity extends AppCompatActivity {
   private static final String TAG = "AddRecipeActivity";

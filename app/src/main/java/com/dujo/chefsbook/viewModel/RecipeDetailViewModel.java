@@ -11,8 +11,8 @@ import java.util.List;
 public class RecipeDetailViewModel extends ViewModel {
   private final RecipeRepository recipeRepository;
   private final MutableLiveData<Recipe> recipe = new MutableLiveData<>();
-  private final MutableLiveData<Float> userRating = new MutableLiveData<>();
-  private final MutableLiveData<List<Float>> ratings = new MutableLiveData<>();
+  private final MutableLiveData<Rating> userRating = new MutableLiveData<>();
+  private final MutableLiveData<List<Rating>> ratings = new MutableLiveData<>();
   private final MutableLiveData<String> error = new MutableLiveData<>();
   private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
 
@@ -20,7 +20,7 @@ public class RecipeDetailViewModel extends ViewModel {
     recipeRepository = new RecipeRepository();
   }
 
-  public void addListenerToRecipesByCategory(String recipeId) {
+  public void addListenerToRecipeRatings(String recipeId) {
     recipeRepository.addListenerToRecipeRatings(recipeId, ratings, error);
   }
 
@@ -34,9 +34,6 @@ public class RecipeDetailViewModel extends ViewModel {
 
   public void rateRecipe(String recipeId, String userId, Rating rating) {
     recipeRepository.rateRecipe(recipeId, userId, userRating, rating, error);
-    Recipe updatedRecipe = new Recipe(recipe.getValue());
-    updatedRecipe.setRating(rating.getRating());
-    updateRecipe(recipeId, updatedRecipe);
   }
 
   public void updateRecipe(String recipeId, Recipe recipe) {
@@ -47,11 +44,11 @@ public class RecipeDetailViewModel extends ViewModel {
     recipeRepository.deleteRecipe(recipeId, error);
   }
 
-  public LiveData<Float> getUserRating() {
+  public LiveData<Rating> getUserRating() {
     return userRating;
   }
 
-  public LiveData<List<Float>> getRatings() {
+  public LiveData<List<Rating>> getRatings() {
     return ratings;
   }
 

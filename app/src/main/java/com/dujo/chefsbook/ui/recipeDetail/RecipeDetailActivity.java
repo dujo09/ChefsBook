@@ -2,7 +2,6 @@ package com.dujo.chefsbook.ui.recipeDetail;
 
 import static com.dujo.chefsbook.utils.Constants.EXTRA_RECIPE_ID;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -58,7 +57,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
     currentUid = FirebaseAuth.getInstance().getUid();
 
     recipeDetailViewModel = new ViewModelProvider(this).get(RecipeDetailViewModel.class);
-    recipeDetailViewModel.addListenerToRecipesByCategory(recipeId);
+    recipeDetailViewModel.addListenerToRecipeRatings(recipeId);
     recipeDetailViewModel.getRecipeById(recipeId);
     recipeDetailViewModel
         .getRecipe()
@@ -85,7 +84,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
             this,
             rating -> {
               if (rating != null) {
-                ratingBar.setRating(rating);
+                ratingBar.setRating(rating.getRating());
               } else {
                 ratingBar.setRating(0f);
               }
@@ -96,12 +95,11 @@ public class RecipeDetailActivity extends AppCompatActivity {
             this,
             ratings -> {
               if (ratings == null || ratings.isEmpty()) return;
-
               tvAvgRating.setText(
                   String.format(
                       Locale.ENGLISH,
                       "%.2f (%d)",
-                      ratings.stream().mapToDouble(Float::doubleValue).average().orElse(0f),
+                      ratings.stream().mapToDouble(Rating::getRating).average().orElse(0f),
                       ratings.size()));
             });
     recipeDetailViewModel
@@ -130,9 +128,10 @@ public class RecipeDetailActivity extends AppCompatActivity {
           recipeDetailViewModel.rateRecipe(recipeId, currentUid, new Rating(rating));
         });
 
-    btnDelete.setOnClickListener(v -> {
-        onDeleteClicked();
-    });
+    btnDelete.setOnClickListener(
+        v -> {
+          onDeleteClicked();
+        });
   }
 
   private void onUpdateClicked() {
@@ -162,8 +161,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
             currentRecipe.getImageUrl());
 
     recipeDetailViewModel.updateRecipe(recipeId, updatedRecipe);
-    Toast.makeText(this, "Updated", Toast.LENGTH_SHORT)
-              .show();
+    Toast.makeText(this, "Updated", Toast.LENGTH_SHORT).show();
   }
 
   private void onDeleteClicked() {

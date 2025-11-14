@@ -8,7 +8,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class RecipeRepository {
   public static final String RECIPE_COLLECTION = "recipes";
@@ -24,27 +23,28 @@ public class RecipeRepository {
       String recipeCategoryId,
       MutableLiveData<List<Recipe>> recipes,
       MutableLiveData<String> error) {
-    recipeCollection.addSnapshotListener(
-        (snapshots, e) -> {
-          if (e != null) {
-            error.postValue(e.getMessage());
-            return;
-          }
-          if (snapshots == null) return;
-          List<Recipe> list = new ArrayList<>();
-          for (DocumentSnapshot doc : snapshots.getDocuments()) {
-            Recipe recipe = doc.toObject(Recipe.class);
-            if (recipe == null) continue;
-            if (!recipe.getRecipeCategoryId().equals(recipeCategoryId)) continue;
-            recipe.setId(doc.getId());
-            list.add(recipe);
-          }
-          recipes.postValue(list);
-        });
+    recipeCollection
+        .whereEqualTo("recipeCategoryId", recipeCategoryId)
+        .addSnapshotListener(
+            (snapshots, e) -> {
+              if (e != null) {
+                error.postValue(e.getMessage());
+                return;
+              }
+              if (snapshots == null) return;
+              List<Recipe> list = new ArrayList<>();
+              for (DocumentSnapshot doc : snapshots.getDocuments()) {
+                Recipe recipe = doc.toObject(Recipe.class);
+                if (recipe == null) continue;
+                recipe.setId(doc.getId());
+                list.add(recipe);
+              }
+              recipes.postValue(list);
+            });
   }
 
   public void addListenerToRecipeRatings(
-      String recipeId, MutableLiveData<List<Float>> ratings, MutableLiveData<String> error) {
+      String recipeId, MutableLiveData<List<Rating>> ratings, MutableLiveData<String> error) {
     recipeCollection
         .document(recipeId)
         .collection(RATINGS_COLLECTION)
@@ -55,11 +55,12 @@ public class RecipeRepository {
                 return;
               }
               if (snapshots == null) return;
-              List<Float> list = new ArrayList<>();
+              List<Rating> list = new ArrayList<>();
               for (DocumentSnapshot doc : snapshots.getDocuments()) {
-                Object rating = doc.get("rating");
-                if (rating == null) continue;
-                if (rating instanceof Number) list.add(((Number) rating).floatValue());
+                Rating rating = doc.toObject(Rating.class);
+                if (rating != null) {
+                  list.add(rating);
+                }
               }
               ratings.postValue(list);
             });
@@ -80,7 +81,7 @@ public class RecipeRepository {
   public void getUserRatingForRecipe(
       String recipeId,
       String userId,
-      MutableLiveData<Float> rating,
+      MutableLiveData<Rating> userRating,
       MutableLiveData<String> error) {
     recipeCollection
         .document(recipeId)
@@ -89,9 +90,10 @@ public class RecipeRepository {
         .get()
         .addOnSuccessListener(
             documentSnapshot -> {
-              if (!documentSnapshot.exists() || !documentSnapshot.contains("rating")) return;
-              rating.postValue(
-                  ((Number) Objects.requireNonNull(documentSnapshot.get("rating"))).floatValue());
+              Rating rating = documentSnapshot.toObject(Rating.class);
+              if (rating != null) {
+                userRating.postValue(rating);
+              }
             })
         .addOnFailureListener(e -> error.postValue(e.getMessage()));
   }
@@ -100,9 +102,7 @@ public class RecipeRepository {
       Recipe recipe, MutableLiveData<Recipe> addedRecipe, MutableLiveData<String> error) {
     recipeCollection
         .add(recipe)
-        .addOnSuccessListener(
-            documentReference ->
-                addedRecipe.postValue(recipe))
+        .addOnSuccessListener(documentReference -> addedRecipe.postValue(recipe))
         .addOnFailureListener(e -> error.postValue(e.getMessage()));
   }
 
@@ -123,7 +123,7 @@ public class RecipeRepository {
   public void rateRecipe(
       String recipeId,
       String userId,
-      MutableLiveData<Float> rating,
+      MutableLiveData<Rating> userRating,
       Rating newRating,
       MutableLiveData<String> error) {
     recipeCollection
@@ -133,7 +133,29 @@ public class RecipeRepository {
         .set(newRating)
         .addOnSuccessListener(
             unused -> {
-              rating.postValue(newRating.getRating());
+              userRating.postValue(newRating);
+
+              recipeCollection
+                  .document(recipeId)
+                  .collection(RATINGS_COLLECTION)
+                  .get()
+                  .addOnSuccessListener(
+                      snapshots -> {
+                        float averageRating = 0.0f;
+                        for (DocumentSnapshot doc : snapshots.getDocuments()) {
+                          Rating rating = doc.toObject(Rating.class);
+                          if (rating != null) {
+                            averageRating += rating.getRating();
+                          }
+                        }
+                        averageRating = averageRating / snapshots.size();
+
+                        recipeCollection
+                            .document(recipeId)
+                            .update("rating", averageRating)
+                            .addOnFailureListener(e -> error.postValue(e.getMessage()));
+                      })
+                  .addOnFailureListener(e -> error.postValue(e.getMessage()));
             })
         .addOnFailureListener(e -> error.postValue(e.getMessage()));
   }
